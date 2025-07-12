@@ -30,5 +30,9 @@ Run the dashboard:
 streamlit run app.py
 ```
 
+## Real-Time Dashboard
+Adjust parameters live and watch results update every 0.5&nbsp;s. Logging is
+displayed using Rich and uploaded CSV files are automatically fit via MCMC.
+
 ## License
 MIT. Contributions welcome!

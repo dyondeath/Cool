@@ -10,3 +10,4 @@ streamlit
 pytest
 jax[cuda]
 pytensor
+threading  # Built-in, but explicit
