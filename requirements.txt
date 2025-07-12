@@ -1,14 +1,15 @@
-qutip
-numpy
-matplotlib
-statsmodels
-scipy
+qutip>=5.0
+numpy>=1.21
+matplotlib>=3.5
+statsmodels>=0.13
+scipy>=1.8
 pymc>=5.0
-arviz
-rich
-streamlit
-pytest
-pytest-cov
-jax[cuda]
-pytensor
-threading  # Built-in, but explicit
+arviz>=0.12
+rich>=12.0
+streamlit>=1.20
+pytest>=7.0
+pytest-cov>=4.0
+# Remove jax[cuda] and pytensor as they cause compilation issues
+# jax[cuda]
+# pytensor
+# threading is built-in, no need to specify
