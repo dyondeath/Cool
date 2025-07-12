@@ -1,0 +1,12 @@
+qutip
+numpy
+matplotlib
+statsmodels
+scipy
+pymc>=5.0
+arviz
+rich
+streamlit
+pytest
+jax[cuda]
+pytensor
