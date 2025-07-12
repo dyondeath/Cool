@@ -60,9 +60,22 @@ import numpy as np
 
 # Analyze experimental data
 data = np.random.normal(0.5, 0.1, 100)  # Your measurement data
-idata, summary = run_mcmc(data, draws=1000, tune=500)
-print(summary)
+
+# Linear model (simple, stable)
+idata_linear, summary_linear = run_mcmc(data, draws=1000, tune=500, model_type='linear')
+
+# Sinusoidal model (more complex, potentially more accurate)
+idata_sin, summary_sin = run_mcmc(data, draws=1000, tune=500, model_type='sinusoidal')
+
+print("Linear model results:", summary_linear)
+print("Sinusoidal model results:", summary_sin)
 ```
+
+**Model Types:**
+- `'linear'`: Simple linear relationship μ = 0.5 + phase × 0.1 (default, more stable)
+- `'sinusoidal'`: Original sinusoidal relationship μ = 0.5 + sin(phase) (more physically accurate)
+
+The sinusoidal model automatically falls back to linear if compilation fails.
 
 ## Testing
 ```bash

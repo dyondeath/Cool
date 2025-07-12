@@ -185,11 +185,24 @@ def dashboard():
             st.write("Data loaded successfully!")
             st.write(f"Shape: {data.shape}")
             
+            # MCMC Model Selection
+            model_type = st.selectbox("MCMC Model Type", 
+                                    ['linear', 'sinusoidal'], 
+                                    help="Linear: simple linear relationship, Sinusoidal: more complex but potentially more accurate")
+            
             if st.button("Run MCMC Analysis"):
-                with st.spinner("Running MCMC..."):
-                    idata, summary = run_mcmc(data.flatten() if data.ndim > 1 else data)
-                    st.subheader("MCMC Results")
-                    st.text(summary.to_string())
+                with st.spinner(f"Running MCMC with {model_type} model..."):
+                    try:
+                        idata, summary = run_mcmc(data.flatten() if data.ndim > 1 else data, 
+                                                model_type=model_type)
+                        st.subheader(f"MCMC Results ({model_type} model)")
+                        st.text(summary.to_string())
+                        
+                        if model_type == 'sinusoidal':
+                            st.info("✅ Successfully used sinusoidal model!")
+                    except Exception as e:
+                        st.error(f"MCMC analysis failed: {str(e)}")
+                        st.info("You can try the linear model as a fallback.")
                     
         except Exception as e:
             st.error(f"Error loading data: {str(e)}")

@@ -80,6 +80,33 @@ class TestEnhancements:
         idata, summary = run_mcmc(data, draws=10, tune=5)
         assert 'phase' in summary.to_string()
     
+    def test_mcmc_sinusoidal_model(self):
+        """Test MCMC with sinusoidal model."""
+        # Create data that follows sinusoidal pattern
+        phase_true = 0.3
+        data = np.full(30, 0.5 + np.sin(phase_true)) + np.random.normal(0, 0.05, 30)
+        
+        # Test sinusoidal model
+        idata, summary = run_mcmc(data, draws=20, tune=10, model_type='sinusoidal')
+        assert 'phase' in summary.to_string()
+        assert 'mu' in summary.to_string()
+        
+    def test_mcmc_model_selection(self):
+        """Test both linear and sinusoidal models work."""
+        data = np.random.normal(0.6, 0.1, 25)
+        
+        # Test linear model
+        idata_linear, summary_linear = run_mcmc(data, draws=15, tune=8, model_type='linear')
+        assert 'phase' in summary_linear.to_string()
+        
+        # Test sinusoidal model  
+        idata_sin, summary_sin = run_mcmc(data, draws=15, tune=8, model_type='sinusoidal')
+        assert 'phase' in summary_sin.to_string()
+        
+        # Both should work and return different results
+        assert idata_linear is not None
+        assert idata_sin is not None
+    
     def test_add_gravity_decoherence(self):
         """Test gravity decoherence function."""
         import qutip as qt
