@@ -8,5 +8,7 @@ arviz
 rich
 streamlit
 pytest
+pytest-cov
 jax[cuda]
 pytensor
+threading  # Built-in, but explicit
