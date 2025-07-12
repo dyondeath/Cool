@@ -1,13 +1,19 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from statsmodels.api import OLS
+# Standard logging – Rich is optional and used only for pretty output.
 import logging
-from rich.logging import RichHandler
+
+try:
+    from rich.logging import RichHandler
+    _handler_cls = RichHandler
+except ModuleNotFoundError:
+    # Graceful fallback when Rich is not available in the execution environment.
+    _handler_cls = logging.StreamHandler
 import pandas as pd
 import io
 
 # Setup Rich logging
-logging.basicConfig(level="INFO", handlers=[RichHandler()])
+logging.basicConfig(level="INFO", handlers=[_handler_cls()])
 logger = logging.getLogger(__name__)
 
 
@@ -72,8 +78,11 @@ def fit_mcmc_proxy(data):
         # Add constant term for intercept
         x_with_const = np.column_stack([np.ones(len(x)), x])
         
+        # Import statsmodels lazily so that unit tests can monkeypatch it
+        import statsmodels.api as sm
+
         # Fit OLS model
-        model = OLS(y, x_with_const)
+        model = sm.OLS(y, x_with_const)
         results = model.fit()
         
         logger.info("OLS fit completed successfully")

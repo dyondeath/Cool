@@ -1,4 +1,61 @@
-import streamlit as st
+"""Dashboard utilities.
+
+This module is imported by the unit-test suite purely for the helper functions
+`async_sim`, `get_sim_queue` and `run_real_time_sim`.  The full Streamlit UI is
+*not* exercised during automated testing.  To keep the package lightweight and
+to avoid an unnecessary hard dependency, we gracefully fall back to a stub when
+`streamlit` is not available in the execution environment.
+"""
+
+from __future__ import annotations
+
+import types
+import sys
+
+# ---------------------------------------------------------------------------
+# Optional Streamlit import
+# ---------------------------------------------------------------------------
+try:
+    import streamlit as st  # type: ignore
+
+except ModuleNotFoundError:  # pragma: no cover – executed only in headless envs
+    def _noop(*_a, **_kw):  # pylint: disable=unused-argument
+        """Function that does nothing and returns *None*."""
+        return None
+
+    # A *very* small stub that provides the few attributes that are accessed in
+    # the helper functions above.  Anything UI-related resolves to a no-op so
+    # that importing this module never fails in a headless context.
+    st = types.ModuleType("streamlit_stub")
+    def _cache_resource_decorator(func=None, *d_args, **d_kw):  # type: ignore
+        """Mimic `@st.cache_resource` decorator with a no-op implementation."""
+        if func is None:
+            # Used with parentheses: @st.cache_resource(**kwargs)
+            return lambda wrapped_func: wrapped_func
+        # Used directly: @st.cache_resource
+        return func
+
+    st.cache_resource = _cache_resource_decorator  # type: ignore
+    st.progress = _noop  # type: ignore
+    st.empty = lambda: types.SimpleNamespace(text=_noop)  # type: ignore
+    st.button = lambda *_a, **_kw: False  # type: ignore
+    st.columns = lambda n: [types.SimpleNamespace() for _ in range(n)]  # type: ignore
+    st.slider = lambda *_a, **_kw: 0  # type: ignore
+    st.selectbox = lambda *_a, **_kw: 0  # type: ignore
+    st.title = _noop  # type: ignore
+    st.subheader = _noop  # type: ignore
+    st.file_uploader = lambda *_a, **_kw: None  # type: ignore
+    st.text = _noop  # type: ignore
+    st.write = _noop  # type: ignore
+    st.pyplot = _noop  # type: ignore
+    st.metric = _noop  # type: ignore
+    st.container = lambda: types.SimpleNamespace()  # type: ignore
+    st.rerun = _noop  # type: ignore
+    st.error = _noop  # type: ignore
+    st.spinner = types.SimpleNamespace(__enter__=lambda self: None, __exit__=lambda self, exc_type, exc, tb: None)
+
+    sys.modules["streamlit"] = st
+
 import numpy as np
 import matplotlib.pyplot as plt
 from .core_simulator import quantum_eraser_sim  # Async wrapper below
@@ -8,17 +65,26 @@ from qutip import Bloch
 import threading
 import queue
 import time
-from rich.console import Console
-from rich.logging import RichHandler
+# Rich is used purely for nicer CLI output. Fall back to standard logging when
+# the dependency is not available in the execution environment.
 import logging
 
-# Setup Rich logging
-console = Console()
+try:
+    from rich.console import Console
+    from rich.logging import RichHandler
+
+    console = Console()
+    _handler = RichHandler(console=console)
+except ModuleNotFoundError:
+    Console = None  # type: ignore
+    _handler = logging.StreamHandler()
+
+# Setup logging (Rich if available)
 logging.basicConfig(
     level="INFO",
     format="%(message)s",
     datefmt="[%X]",
-    handlers=[RichHandler(console=console)]
+    handlers=[_handler]
 )
 logger = logging.getLogger(__name__)
 
